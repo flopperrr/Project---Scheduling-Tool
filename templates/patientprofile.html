@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        background: linear-gradient(to right, #dff0ea, #f6e6f0);
+        font-family: 'Segoe UI', sans-serif;
+    }
+    h1, h3, h4 {
+        color: #007b8a;
+    }
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 0 8px rgba(0,0,0,0.08);
+    }
+    .list-group-item {
+        background-color: #ffffff;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        border: 1px solid #e3e3e3;
+    }
+</style>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Patient Profile</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4>{{ patient['preferred_name'] or patient['first_name'] }} {{ patient['last_name'] }}</h4>
+            <p><strong>Phone:</strong> {{ patient['phone'] }}</p>
+            <p><strong>Email:</strong> {{ patient['email'] }}</p>
+            <p><strong>Date of Birth:</strong> {{ patient['date_of_birth'] | datetimeformat('%d/%m/%Y') }}</p>
+            <p><strong>Address:</strong> {{ patient['address'] }}</p>
+            <p><strong>Gender:</strong> {{ patient['gender'] }}</p>
+            <p><strong>Health Fund:</strong> {{ patient['health_fund'] }}</p>
+            <p><strong>Medicare Number:</strong> {{ patient['medicare_number'] }}</p>
+            <p><strong>Medicare Reference:</strong> {{ patient['medicare_reference'] }}</p>
+            <p><strong>Medicare Expiry:</strong> {{ patient['medicare_expiry'] }}</p>
+            <p><strong>General Practitioner:</strong> {{ patient['general_practitioner'] }}</p>
+            <p><strong>Referral:</strong> {{ patient['referral'] }}</p>
+        </div>
+    </div>
+
+    <h3>Appointments</h3>
+    {% if appointments %}
+    <ul class="list-group">
+        {% for appointment in appointments %}
+        <li class="list-group-item">
+            <strong>Date:</strong> {{ appointment['formatted_time'] }}<br>
+            <strong>Note:</strong> {{ appointment['note'] or 'None' }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No appointments found for this patient.</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

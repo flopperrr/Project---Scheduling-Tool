@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Appointment Calendar</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(to right, #dff0ea, #f6e6f0);
+      font-family: 'Segoe UI', sans-serif;
+    }
+    h1 {
+      color: #007b8a;
+    }
+    #calendar {
+      max-width: 900px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+    #details {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 1px solid #6c757d;
+      background-color: #e9ecef;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">Appointment Calendar</h1>
+
+  <div id="calendar"></div>
+
+  <div id="details" style="display:none;"></div>
+
+  <div style="text-align:center; margin-top: 20px;">
+  <a href="{{ url_for('dashboard') }}"
+     class="btn btn-secondary mt-3">
+    ← Back to Dashboard
+  </a>
+
+  <script>
+    function formatAustralian(datetimeString) {
+      const date = new Date(datetimeString);
+      return date.toLocaleString("en-AU", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit"
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarEl = document.getElementById('calendar');
+      const detailBox = document.getElementById('details');
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridWeek',
+        locale: 'en-au',
+        dayHeaderFormat: { weekday: 'short', day: '2-digit', month: '2-digit' },
+        slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+        events: '/api/events',
+
+      eventClick: function (info) {
+        const event = info.event;
+        const timeAU = formatAustralian(event.start);
+        const note = event.extendedProps.note || "None";
+        const preferredName = event.extendedProps.preferredName || event.extendedProps.firstName;
+        const lastName = event.extendedProps.lastName || "";
+
+        const html = `
+          <h4>Appointment Details</h4>
+          <p><strong>Patient:</strong> ${preferredName} ${lastName}</p>
+          <p><strong>Patient ID:</strong> ${event.extendedProps.patientId}</p>
+          <p><strong>Time:</strong> ${timeAU}</p>
+          <p><strong>Note:</strong> ${note}</p>
+        `;
+        detailBox.innerHTML = html;
+        detailBox.style.display = 'block';
+      }
+      });
+
+      calendar.render();
+    });
+  </script>
+</body>
+</html>
