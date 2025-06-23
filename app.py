@@ -9,10 +9,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = 'yoursecretkey'
 
-users = {
-    "doctor": generate_password_hash("securepass123")
-}
-
 @app.template_filter('datetimeformat')
 def datetimeformat(value, format='%d/%m/%Y'):
     try:
@@ -64,6 +60,24 @@ def init_db():
                 FOREIGN KEY (patient_id) REFERENCES patients (id)
             );
         ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL
+            );
+        ''')
+        accounts = {
+            'Doctor':   'Admin123@!',
+            'Staff1':   'Staff01$',
+            'Staff2':   'Staff02$'
+        }
+        for uname, pwd in accounts.items():
+            hashed = generate_password_hash(pwd)
+            conn.execute(
+                'INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)',
+                (uname, hashed)
+            )
         conn.commit()
         conn.close()
 
@@ -288,8 +302,10 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user_hash = users.get(username)
-        if user_hash and check_password_hash(user_hash, password):
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        conn.close()
+        if user and check_password_hash(user['password'], password):
             session['username'] = username
             return redirect(url_for('dashboard'))
         else:
@@ -304,3 +320,4 @@ def logout():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
+    
