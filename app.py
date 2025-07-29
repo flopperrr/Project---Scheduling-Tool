@@ -6,6 +6,8 @@ from datetime import datetime
 from flask import session
 from werkzeug.security import check_password_hash, generate_password_hash
 
+#Initialize the Flask application
+
 app = Flask(__name__)
 app.secret_key = 'yoursecretkey'
 
@@ -15,6 +17,8 @@ def datetimeformat(value, format='%d/%m/%Y'):
         return datetime.strptime(value, '%Y-%m-%d').strftime(format)
     except:
         return value
+
+#Require login on all routes except ‘login’ and static assets
 
 @app.before_request
 def require_login():
@@ -28,6 +32,8 @@ def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+#Creates tables only if DB file is missing it won’t run on existing DB
 
 def init_db():
     if not os.path.exists(DB_PATH):
@@ -311,6 +317,8 @@ def login():
         else:
             error = 'Invalid username or password.'
     return render_template('login.html', error=error)
+
+#Clears session to log out user securely
 
 @app.route('/logout')
 def logout():
